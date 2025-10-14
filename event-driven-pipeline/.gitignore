@@ -1,0 +1,13 @@
+# Terraform local files
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# AWS CLI ZIPs or binaries
+terraform/awscliv2.zip
+*.zip
+
+# Python and build caches
+__pycache__/
+*.pyc
+lambda_zip/
