@@ -1,0 +1,75 @@
+name: CI-CD Terraform Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  package-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Debug repo structure (optional)
+      - name: List repo files
+        run: |
+          pwd
+          ls -R event-driven-pipeline/scripts
+          ls -R event-driven-pipeline/lambda
+          ls -R event-driven-pipeline/terraform
+
+      # 3️⃣ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 4️⃣ Build Lambdas
+      - name: Build Lambdas
+        run: |
+          chmod +x event-driven-pipeline/scripts/lambda.sh
+          ./event-driven-pipeline/scripts/lambda.sh
+
+      # 5️⃣ Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: AKIARJHKLYNZKZ5DIAED
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      # 6️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      # 7️⃣ Terraform Init
+      - name: Terraform Init
+        working-directory: event-driven-pipeline/terraform
+        run: terraform init
+
+      # 8️⃣ Terraform Validate
+      - name: Terraform Validate
+        working-directory: event-driven-pipeline/terraform
+        run: terraform validate
+
+      # 9️⃣ Terraform Plan
+      - name: Terraform Plan
+        working-directory: event-driven-pipeline/terraform
+        run: terraform plan \
+          -var="processor_zip_path=my_lambdas/processor.zip" \
+          -var="report_zip_path=my_lambdas/report.zip" \
+          -var="raw_bucket_name=archana-devops-raw-2025" \
+          -var="processed_bucket_name=archana-devops-processed-2025"
+
+      # 🔟 Terraform Apply
+      - name: Terraform Apply
+        working-directory: event-driven-pipeline/terraform
+        run: terraform apply -auto-approve \
+          -var="processor_zip_path=my_lambdas/processor.zip" \
+          -var="report_zip_path=my_lambdas/report.zip" \
+          -var="raw_bucket_name=archana-devops-raw-2025" \
+          -var="processed_bucket_name=archana-devops-processed-2025"
