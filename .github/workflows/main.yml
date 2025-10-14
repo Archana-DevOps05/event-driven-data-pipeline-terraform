@@ -1,0 +1,59 @@
+name: CI-CD Terraform Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  package-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 3️⃣ Build Lambdas
+      - name: Build Lambdas
+        run: |
+          chmod +x scripts/build_lambdas.sh
+          ./scripts/build_lambdas.sh
+
+      # 4️⃣ Configure AWS Credentials (use GitHub secrets!)
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: AKIARJHKLYNZKZ5DIAED
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      # 5️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      # 6️⃣ Terraform Init
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      # 7️⃣ Terraform Validate
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      # 8️⃣ Terraform Plan
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan -var="raw_bucket_name=archana-devops-raw-2025" -var="processed_bucket_name=archana-devops-processed-2025"
+
+      # 9️⃣ Terraform Apply
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="raw_bucket_name=archana-devops-raw-2025" -var="processed_bucket_name=archana-devops-processed-2025"
