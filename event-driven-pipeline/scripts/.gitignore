@@ -1,0 +1,8 @@
+/.lambda_zip/
+/terraform/terraform.tfstate
+/terraform/terraform.tfstate.backup
+/__pycache__/
+*.pyc
+venv/
+.idea/
+.vscode/
