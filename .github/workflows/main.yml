@@ -1,0 +1,41 @@
+name: CI-CD Terraform Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  package-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Build Lambdas
+        run: |
+          chmod +x scripts/build_lambdas.sh
+          ./scripts/build_lambdas.sh
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: AKIARJHKLYNZFNOQMWXJ
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve -var="raw_bucket_name=archana-devops-raw-2025" -var="archana-devops-processed-2025"
