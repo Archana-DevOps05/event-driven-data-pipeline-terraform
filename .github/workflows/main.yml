@@ -9,53 +9,53 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ⿡ Checkout code
+      # 🧩 Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ⿢ Check folder structure (debugging step - optional but useful)
+      # 📂 Check folder structure (debugging step)
       - name: List repo files
         run: |
           pwd
           ls -R event-driven-pipeline
 
-      # ⿣ Set up Python for Lambda packaging
+      # 🐍 Set up Python for Lambda packaging
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # ⿤ Build Lambda zip files
+      # 📦 Build Lambda zip files
       - name: Build Lambda functions
         run: |
           chmod +x event-driven-pipeline/scripts/lambda.sh
           ./event-driven-pipeline/scripts/lambda.sh
 
-      # ⿥ Configure AWS credentials
+      # 🔐 Configure AWS credentials (from GitHub Secrets)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ AKIARJHKLYNZB32NXQXV }}
-          aws-secret-access-key: ${{ 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 }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      # ⿦ Setup Terraform
+      # ⚙️ Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: "1.5.0"
 
-      # ⿧ Terraform Init
+      # 🧱 Terraform Init
       - name: Terraform Init
         working-directory: event-driven-pipeline/terraform
         run: terraform init
 
-      # ⿨ Terraform Validate
+      # ✅ Terraform Validate
       - name: Terraform Validate
         working-directory: event-driven-pipeline/terraform
         run: terraform validate
 
-      # ⿩ Terraform Plan
+      # 📋 Terraform Plan
       - name: Terraform Plan
         working-directory: event-driven-pipeline/terraform
         run: |
@@ -65,7 +65,7 @@ jobs:
             -var="raw_bucket_name=archana-devops-raw-2025" \
             -var="processed_bucket_name=archana-devops-processed-2025"
 
-      # 🔟 Terraform Apply
+      # 🚀 Terraform Apply
       - name: Terraform Apply
         working-directory: event-driven-pipeline/terraform
         run: |
