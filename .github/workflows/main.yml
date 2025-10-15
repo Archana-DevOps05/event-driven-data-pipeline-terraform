@@ -1,0 +1,70 @@
+name: CI-CD Terraform Deploy
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  package-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout code
+      - uses: actions/checkout@v4
+
+      # 2️⃣ List files for debugging (optional)
+      - name: List repo files
+        run: |
+          pwd
+          ls -R
+
+      # 3️⃣ Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 4️⃣ Build Lambdas
+      - name: Build Lambdas
+        run: |
+          chmod +x event-driven-pipeline/scripts/lambda.sh
+          ./event-driven-pipeline/scripts/lambda.sh
+
+      # 5️⃣ Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: AKIARJHKLYNZOYZDQO4T
+          aws-secret-access-key: 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
+          aws-region: us-east-1
+
+      # 6️⃣ Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.5.0"
+
+      # 7️⃣ Terraform Init
+      - name: Terraform Init
+        working-directory: ./event-driven-pipeline
+        run: terraform init
+
+      # 8️⃣ Terraform Plan
+      - name: Terraform Plan
+        working-directory: ./event-driven-pipeline
+        run: |
+          terraform plan \
+            -var="processor_zip_path=../event-driven-pipeline/my_lambdas/processor.zip" \
+            -var="report_zip_path=../event-driven-pipeline/my_lambdas/report.zip" \
+            -var="raw_bucket_name=archana-devops-raw-2025" \
+            -var="processed_bucket_name=archana-devops-processed-2025"
+
+      # 9️⃣ Terraform Apply
+      - name: Terraform Apply
+        working-directory: ./event-driven-pipeline
+        run: |
+          terraform apply -auto-approve \
+            -var="processor_zip_path=../event-driven-pipeline/my_lambdas/processor.zip" \
+            -var="report_zip_path=../event-driven-pipeline/my_lambdas/report.zip" \
+            -var="raw_bucket_name=archana-devops-raw-2025" \
+            -var="processed_bucket_name=archana-devops-processed-2025"
