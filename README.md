@@ -12,15 +12,25 @@ The goal is to build a **reproducible, automated, and scalable** data pipeline u
 ## 📂 Repository Structure
 
 ├── event-driven-pipeline/ # Main Terraform configuration / module
+
 │ ├── main.tf
+
 │ ├── variables.tf
+
 │ ├── outputs.tf
+
 │ ├── terraform.tfvars.example
+
 │ └── ...
+
 ├── test_data.json # Sample data or event payloads
+
 ├── output.json # Sample output file
+
 ├── .github/
+
 │ └── workflows/ # GitHub Actions CI/CD pipelines
+
 ├── .gitignore
 
 
