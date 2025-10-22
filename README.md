@@ -41,7 +41,7 @@ The goal is to build a **reproducible, automated, and scalable** data pipeline u
 Make sure you have the following tools and setup ready before deploying:
 
 - Terraform (v1.x or higher)
-- A cloud account (AWS / GCP / Azure)
+- A cloud account AWS 
 - Proper IAM credentials (Access key, secret key, or service account)
 - CLI configured for your chosen cloud provider
 - (Optional) GitHub Actions for CI/CD automation
